@@ -1,0 +1,1 @@
+The purpose of this repo is to set up a simple web app where users have two recurring subscription models where there is a 7 day free trial. I am also interested in learning how the Stripe testing and time clock works. 
