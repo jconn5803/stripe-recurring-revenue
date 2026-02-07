@@ -143,7 +143,7 @@
                     <li>Monthly billing</li>
                 </ul>
                 <form method="POST" action="{{ url_for('payments.create_checkout_session') }}">
-                    <input type="hidden" name="plan" value="monthly">
+                    <input type="hidden" name="subscription_type" value="monthly">
                     <button class="subscribe-btn" type="submit">Subscribe Monthly</button>
                 </form>
             </div>
@@ -160,7 +160,7 @@
                     <li>Save 17% vs monthly</li>
                 </ul>
                 <form method="POST" action="{{ url_for('payments.create_checkout_session') }}">
-                    <input type="hidden" name="plan" value="yearly">
+                    <input type="hidden" name="subscription_type" value="yearly">
                     <button class="subscribe-btn" type="submit">Subscribe Yearly</button>
                 </form>
             </div>

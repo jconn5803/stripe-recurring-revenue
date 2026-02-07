@@ -3,29 +3,31 @@ import stripe
 import os
 from app.payments import bp
 
-
-import os
-
 # Nuke any proxy config that might be injected
+# There was a bug where I was getting 403 errors from Stripe because of a proxy config in the environment
+# I am still unsure of the true root cause
 for k in ["HTTPS_PROXY", "ALL_PROXY"]:
     os.environ.pop(k, None)
 
-
+stripe.api_key = os.getenv('TEST_STRIPE_SECRET_KEY')
 
 @bp.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-    
-    # Use the test secret key configured in .env
-    stripe.api_key = os.getenv('TEST_STRIPE_SECRET_KEY')
-    # Choose the appropriate Stripe Price ID based on the selected plan
-    price_id = os.getenv('TEST_MONTHLY_PRICE_ID')
+
+    # Firstly we need to determine the price ID to use based on the selected plan. For simplicity, we'll assume a single plan for now.
+    subscription_type = request.form.get('subscription_type', 'monthly')
+    if subscription_type == 'monthly':
+        price_id = os.getenv('TEST_MONTHLY_PRICE_ID')
+    elif subscription_type == 'yearly':
+        price_id = os.getenv('TEST_YEARLY_PRICE_ID')
+    else:
+        return jsonify({'error': 'Invalid subscription type.'}), 400
+
 
     if not price_id:
         return jsonify({'error': 'Price configuration is missing.'}), 400
 
     base_url = request.host_url.rstrip('/')
-    print(base_url)
-
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -37,7 +39,6 @@ def create_checkout_session():
             success_url=f'{base_url}/payments/success',
             cancel_url=f'{base_url}/payments/cancel',
         )
-
         return redirect(checkout_session.url, code=303)
     except Exception as e:
         return jsonify({'error': str(e)}), 400
