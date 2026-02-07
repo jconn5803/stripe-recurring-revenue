@@ -142,7 +142,10 @@
                     <li>Cancel anytime</li>
                     <li>Monthly billing</li>
                 </ul>
-                <button class="subscribe-btn">Subscribe Monthly</button>
+                <form method="POST" action="{{ url_for('payments.create_checkout_session') }}">
+                    <input type="hidden" name="plan" value="monthly">
+                    <button class="subscribe-btn" type="submit">Subscribe Monthly</button>
+                </form>
             </div>
 
             <div class="plan-box popular">
@@ -156,7 +159,10 @@
                     <li>Cancel anytime</li>
                     <li>Save 17% vs monthly</li>
                 </ul>
-                <button class="subscribe-btn">Subscribe Yearly</button>
+                <form method="POST" action="{{ url_for('payments.create_checkout_session') }}">
+                    <input type="hidden" name="plan" value="yearly">
+                    <button class="subscribe-btn" type="submit">Subscribe Yearly</button>
+                </form>
             </div>
         </div>
 
