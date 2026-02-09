@@ -15,3 +15,11 @@ To test webhooks during development you need to use either the Stripe CLI or ngr
 Ngrok///
 Ngrok is a utility that allocates a temporary public URL for your local web server. While ngrok is running, the local server can receive requests from anywhere in the world through Ngrok's public URL. 
 Once pyngrok is installed you can open up a new terminal and run `ngrok http 5000`. To configure this endpoint go onto the Stripe Webhook configuration page (Webhook Configuration page) and enter the ngrok URL with the /event or /payment or the name of webhook in your app. 
+
+
+Stripe///
+The customer clicks on the button to subsscribe and this connects to a Stripe hosted payment page created via the create-checkout-session function. 
+
+When this payment successfully goes through, the webhook listens out for checkout.session.created. When this is triggered, we are able to create/ update the customer table in the database as well as the subscriptions that the checkout session has lead to the creation of. 
+
+We control the access in the web app via the entitlements object that each customer has. In order to do this, we need to get the current users entitlements and write decorators for each entitlement. 

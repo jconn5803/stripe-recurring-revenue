@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .status {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .status.no {
+            color: #dc3545;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Access</h1>
+
+    {% if error %}
+        <div class="card">
+            <p>{{ error }}</p>
+        </div>
+    {% else %}
+        <div class="card">
+            <p>test-access: <span class="status {{ 'no' if not has_test_access else '' }}">{{ 'Yes' if has_test_access else 'No' }}</span></p>
+            <p>test-access-2: <span class="status {{ 'no' if not has_test_access_2 else '' }}">{{ 'Yes' if has_test_access_2 else 'No' }}</span></p>
+        </div>
+
+        <div class="card">
+            <p>Active entitlements:</p>
+            {% if entitlement_keys %}
+                <ul>
+                    {% for key in entitlement_keys %}
+                        <li>{{ key }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>None</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <p><a href="{{ url_for('general.index') }}">Back to Home</a></p>
+</body>
+</html>
