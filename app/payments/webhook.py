@@ -23,6 +23,8 @@ def test_route():
 
 
 def handle_checkout_session(session):
+    
+    # 1. Deal with customer creation from the event
     stripe_customer_id = session.get('customer')
     user_id = session.get('client_reference_id')
 
@@ -44,6 +46,23 @@ def handle_checkout_session(session):
         db.session.commit()
     else:
         customer.customer_name = customer_name
+        db.session.commit()
+    
+    # 2. Deal with subscription creation from the event
+    subscription_id = session.get('subscription')
+    if subscription_id:
+        stripe_subscription = stripe.Subscription.retrieve(subscription_id)
+        product_id = stripe_subscription['items']['data'][0]['price']['product']
+        price_id = stripe_subscription['items']['data'][0]['price']['id']
+        subscription = Subscription(
+            stripe_customer_id=stripe_customer_id,
+            stripe_subscription_id=subscription_id,
+            status=stripe_subscription['status'],
+            product_id=product_id,
+            price_id=price_id,
+            created_at=datetime.fromtimestamp(stripe_subscription['created'])
+        )
+        db.session.add(subscription)
         db.session.commit()
 
     
