@@ -1,6 +1,8 @@
 from flask import request, jsonify, redirect
+from flask_login import current_user
 import stripe
 import os
+import json
 from app.payments import bp
 
 # Nuke any proxy config that might be injected
@@ -38,6 +40,7 @@ def create_checkout_session():
             mode='subscription',
             success_url=f'{base_url}/payments/success',
             cancel_url=f'{base_url}/payments/cancel',
+            client_reference_id=current_user.get_id()
         )
         return redirect(checkout_session.url, code=303)
     except Exception as e:
@@ -68,3 +71,4 @@ def cancel():
         </body>
     </html>
     '''
+
