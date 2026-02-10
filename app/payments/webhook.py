@@ -23,6 +23,22 @@ def test_route():
 
 
 def handle_checkout_session(session):
+    """
+    Handle a Stripe checkout session completion event.
+    This function processes a completed checkout session by:
+    1. Creating or updating a Customer record in the database based on Stripe customer data
+    2. Creating a Subscription record if a subscription was included in the checkout
+    Args:
+        session (dict): The Stripe checkout session object containing customer and subscription data
+    Returns:
+        None
+    Side Effects:
+        - Creates or updates Customer record in database
+        - Creates Subscription record in database if subscription exists
+        - Commits changes to database session
+    Note:
+        Requires active database session and Stripe API access
+    """
     
     # 1. Deal with customer creation from the event
     stripe_customer_id = session.get('customer')
@@ -66,7 +82,32 @@ def handle_checkout_session(session):
         db.session.commit()
 
     
+def handle_subscription_cancelled(session):
+    """
+    Handle the cancellation of a subscription.
     
+    Updates the subscription status to 'cancelled' in the database when a 
+    subscription cancellation event is received from Stripe webhook.
+    
+    Args:
+        session (dict): The session data containing subscription information,
+                       expected to have an 'id' key with the Stripe subscription ID.
+    
+    Returns:
+        None
+        
+    Side Effects:
+        - Updates the subscription status in the database to 'cancelled'
+        - Commits the changes to the database session
+    """
+    subscription_id = session.get('id')
+    subscription = db.session.scalar(db.select(Subscription).where(Subscription.stripe_subscription_id == subscription_id))
+    if subscription:
+        subscription.status = 'cancelled'
+        db.session.commit()
+    
+
+
 
 
 
@@ -120,6 +161,11 @@ def event_received():
         # The subscription becomes past_due. Notify your customer and send them to the
         # customer portal to update their payment information.
         print(data)
+    elif event_type == 'customer.subscription.deleted': # Case where user cancels subscrition via portal
+        # Need to mark the subscription as cancelled in database
+        session = event['data']['object']
+        handle_subscription_cancelled(session)
+
     else:
         print('Unhandled event type {}'.format(event_type))
 

@@ -23,3 +23,8 @@ The customer clicks on the button to subsscribe and this connects to a Stripe ho
 When this payment successfully goes through, the webhook listens out for checkout.session.created. When this is triggered, we are able to create/ update the customer table in the database as well as the subscriptions that the checkout session has lead to the creation of. 
 
 We control the access in the web app via the entitlements object that each customer has. In order to do this, we need to get the current users entitlements and write decorators for each entitlement. 
+
+We still need to cover off cancelling subscriptions either by the customer or lack of payment.
+
+
+Make sure to add new events to the webhook in stripe dashboard.

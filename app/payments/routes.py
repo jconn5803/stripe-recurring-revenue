@@ -1,5 +1,5 @@
 from flask import request, jsonify, redirect
-from flask_login import current_user
+from flask_login import current_user, login_required
 import stripe
 import os
 import json
@@ -71,4 +71,25 @@ def cancel():
         </body>
     </html>
     '''
+
+@bp.route('/billing-portal')
+@login_required
+def billing_portal():
+    if not stripe.api_key:
+        return jsonify({'error': 'Stripe API key is not configured.'}), 500
+
+    customer = current_user.customer
+    if not customer:
+        return jsonify({'error': 'No Stripe customer is linked to your account.'}), 400
+
+    base_url = request.host_url.rstrip('/')
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=customer.stripe_customer_id,
+            return_url=base_url
+        )
+        return redirect(session.url, code=303)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 
