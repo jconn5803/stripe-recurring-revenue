@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            color: #1f2933;
+            background: #ffffff;
+        }
+        h1 {
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+        .subtitle {
+            color: #52606d;
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            box-shadow: 0 2px 6px rgba(16, 24, 40, 0.08);
+        }
+        .badge {
+            display: inline-block;
+            background: #0ea5e9;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+        }
+        .features {
+            margin: 0;
+            padding-left: 18px;
+            color: #334e68;
+        }
+        .features li {
+            margin: 8px 0;
+        }
+        .nav-links a {
+            display: inline-block;
+            margin-right: 12px;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            border-radius: 6px;
+        }
+        .nav-links a.secondary {
+            background-color: #6c757d;
+        }
+        .nav-links a:hover {
+            background-color: #0056b3;
+        }
+        .nav-links a.secondary:hover {
+            background-color: #52585d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Premium Dashboard</h1>
+    <p class="subtitle">You're seeing this page because your account has the <strong>test-access</strong> entitlement.</p>
+
+    <div class="card">
+        <span class="badge">Premium</span>
+        <h2>What's Included</h2>
+        <ul class="features">
+            <li>Priority support with faster response times.</li>
+            <li>Advanced usage insights and billing summaries.</li>
+            <li>Early access to new Stripe-powered features.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Next Steps</h2>
+        <p>If you'd like to verify or manage your entitlements, visit the access page.</p>
+    </div>
+
+    <div class="nav-links">
+        <a href="{{ url_for('general.access') }}">View Access</a>
+        <a class="secondary" href="{{ url_for('general.index') }}">Back to Home</a>
+    </div>
+</body>
+</html>

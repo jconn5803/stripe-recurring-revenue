@@ -3,6 +3,7 @@ import stripe
 from flask import render_template, current_app
 from flask_login import login_required, current_user
 from app.general import bp
+from app.payments.decorators import requires_feature
 
 
 @bp.route('/')
@@ -55,3 +56,9 @@ def access():
         has_test_access=has_test_access,
         has_test_access_2=has_test_access_2
     )
+
+
+@bp.route('/premium')
+@requires_feature('test-access')
+def premium():
+    return render_template('premium.html', title='Premium')
