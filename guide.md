@@ -142,6 +142,9 @@ The database models are in `app/models.py`:
 4. A Checkout Session is created in subscription mode.
 5. `client_reference_id` is set to the logged-in user ID (so it can be mapped on webhook).
 6. User is redirected to Stripe Checkout.
+7. Once the user pays via a valid payment method this will trigger a new customer object to be created in Stipe and most importantly the checkout.session.completed event to be triggered. 
+8. This event should trigger the webhook which in turn triggers the function `handle_checkout_session`. This retrives the Stripe customer ID and adds them to our customers database. Storing the Stripe customer ID against our internal user ID is essential for managing subsctiptions. Additionally, it will add a subscription record to our database (storing the Stripe subscription ID, status, product ID, price ID and creation time). Note: we just store this for record and we do not actually use this to manage access to features.
+9. A Stripe event entitlements.active_entitlement_summary.updated is called which adds any features associated with the product the customer has bought to this list. This is what is used to manage access. 
 
 ### 4.5 Managing User Access to Features
 
@@ -166,6 +169,8 @@ The decorator in `app/payments/decorators.py` applies the same logic at request 
 3. It checks whether any entitlement has a `lookup_key` that matches the required feature.
 4. If the entitlement is missing, it flashes a message and redirects the user away from the premium page.
 
+You could imagine using the first user access method when you want to manage feature access on the same endpoint, whereas decorators are more useful for managing full page access.
+
 ### 4.6 User Managing Their Subscription (Billing Portal)
 
 The Billing Portal endpoint is `/payments/billing-portal`.
@@ -174,22 +179,41 @@ The Billing Portal endpoint is `/payments/billing-portal`.
 - The session uses the Stripe customer ID stored in the database.
 - If a user does not have a linked Stripe customer, they receive an error.
 
+On the billing portal the user can update their payment method, add new payment methods, see their invoice history and update billing info. Most importantly this is where the "cancel subscription" button lies. 
+
+
 ### 4.7 Cancelled Subscription
 
 #### 4.7.a User Decides to Cancel Their Subscription
 
 When a user cancels in the Billing Portal, Stripe sends `customer.subscription.deleted` once the expiration time has elapsed.
-The webhook updates the local subscription row to `status = 'cancelled'`.
+The webhook updates the local subscription row to `status = 'cancelled'`. Recall the subscriptions table is just for our record and does not actually control access.
+When the expiration time has passed a entitlements.active_entitlement_summary.updated which removes the features from the entitlements list that the customer has lost. This means that these entitlements are no longer active. 
 
-### 4.8 User Fails to Pay for Their Subscription
+### 4.7.b User Fails to Pay for Their Subscription
 
 The webhook listens for `invoice.payment_failed`, but currently only logs the event.
-This is where you would add logic to:
 
-- Notify the user.
-- Mark the subscription as `past_due` in your database.
-- Prompt them to update payment details via the Billing Portal.
+Within the Stripe dashboard you can configure smart retries. The default setting is to try up to 8 times in 2 weeks of the first payment failure and then cancel the subscription if all the retries fail. 
+In the Stripe dashboard setting you can set up emails to customers with failed invoices with payment links to update their payment method. 
 
-## 5. Testing
+## 5. Free Trial
+A free trial period is set up by adding to the stripe.checkout.session.create the argument subscription_data={"trial_period_days": 7}. This will then create a subscription as usual with the status of `trialing`. The user inputs their payment details so if they don't cancel then the payment is taken and the entitlements do not change.
 
-## 6. Deployment to Production
+### Cancelling during a Trial Period
+A user has every right to cancel during a trial period. The user can cancel the free trial, and hence the subscription, via the billing portal. When the billing cycle ends, i.e the free trial elapses, the customer.subscription.deleted event is invoked which causes the same process as 4.7.a. 
+
+## 6. Discount Codes
+You may want to offer discount codes to customers for 10% or £30 off. You can do this by
+
+1. Create a coupon via the Stripe dashboard product catalogue. Coupons are configurable for type, amounts, specific products, durations and usage quotas. Interestingly, it appears that if you have multiple prices associated with the same product then you can only apply it to the product as a whole. You are most likely going to want to toggle customer-facing coupon codes active. They are also configurable for a specific customer.
+2. In the stripe.checkout.session.create add `allow_promotion_codes=True` as an argument.
+
+
+
+
+
+
+## 7. Testing
+
+## 8. Deployment to Production
