@@ -40,7 +40,8 @@ def create_checkout_session():
             mode='subscription',
             success_url=f'{base_url}/payments/success',
             cancel_url=f'{base_url}/payments/cancel',
-            client_reference_id=current_user.get_id()
+            client_reference_id=current_user.get_id(),
+            subscription_data={"trial_period_days": 7},
         )
         return redirect(checkout_session.url, code=303)
     except Exception as e:

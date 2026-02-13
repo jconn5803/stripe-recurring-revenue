@@ -3,7 +3,7 @@ import stripe
 import os
 import json
 from app.payments import bp
-from app.payments.webhook_helpers import handle_checkout_session, handle_invoice_payment_failed, handle_subscription_cancelled
+from app.payments.webhook_helpers import handle_checkout_session, handle_invoice_payment_failed, handle_subscription_cancelled, handle_subscription_updated
 from app import db
 
 stripe.api_key = os.getenv('TEST_STRIPE_SECRET_KEY')
@@ -55,6 +55,10 @@ def event_received():
         # customer portal to update their payment information.
         session = event['data']['object']
         handle_invoice_payment_failed(session)
+    elif event_type == 'customer.subscription.updated':
+        # Handle subscription updates if needed (e.g., status changes, plan changes)
+        session = event['data']['object']
+        # You can update your database records based on the new subscription status or details here.
     elif event_type == 'customer.subscription.deleted': # Case where user cancels subscrition via portal
         # Need to mark the subscription as cancelled in database
         session = event['data']['object']

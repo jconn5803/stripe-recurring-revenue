@@ -114,3 +114,29 @@ def handle_invoice_payment_failed(session):
         # Update subscription status to 'past_due'
         subscription.status = 'past_due'
         db.session.commit()
+
+def handle_subscription_updated(session):
+    """
+    Handle a subscription update event from Stripe.
+    
+    This function processes a subscription update by:
+    1. Retrieving the associated subscription from the database
+    2. Updating the subscription status and other relevant fields based on the new data
+    
+    Args:
+        session (dict): The Stripe subscription object containing updated subscription data
+    
+    Returns:
+        None
+        
+    Note:
+        Requires active database session and Stripe API access
+    """
+    subscription_id = session.get('id')
+    subscription = db.session.scalar(db.select(Subscription).where(Subscription.stripe_subscription_id == subscription_id))
+    
+    if subscription:
+        # Update subscription status and other relevant fields
+        subscription.status = session.get('status')
+        # You can also update other fields like product_id, price_id, etc. if needed
+        db.session.commit()
