@@ -13,9 +13,10 @@ def requires_feature(feature_lookup_key):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             # Get current user from Flask session/login system
-            user = current_user  # Or however you access the current user
+            user = current_user
             
-            if not user:
+            # Check authentication first - current_user is AnonymousUserMixin when not logged in
+            if not user.is_authenticated:
                 flash('Please log in to access this feature.')
                 return redirect(url_for('auth.login'))
             

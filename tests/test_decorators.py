@@ -67,31 +67,18 @@ class TestRequiresFeatureDecorator:
                 assert response.status_code == 302
 
     def test_redirects_to_login_when_not_authenticated(self, app, client):
-        """Test that unauthenticated users are redirected to login.
-        
-        Note: The current decorator implementation has a bug where it accesses
-        user.id before properly checking if the user is authenticated.
-        This test catches that error and documents the expected behavior.
-        
-        TODO: Fix the decorator to use `current_user.is_authenticated` check
-        before accessing user.id.
-        """
+        """Test that unauthenticated users are redirected to login."""
         with app.app_context():
             @app.route('/test-auth-required')
             @requires_feature('any_feature')
             def test_auth_route():
                 return 'Access granted', 200
             
-            # The decorator currently raises AttributeError for anonymous users
-            # because it accesses user.id before checking authentication.
-            # This test verifies the endpoint is protected (doesn't return 200).
-            try:
-                response = client.get('/test-auth-required')
-                # If no error, should still not grant access
-                assert response.status_code != 200
-            except AttributeError:
-                # Expected due to bug in decorator
-                pass
+            response = client.get('/test-auth-required')
+            
+            # Should redirect to login
+            assert response.status_code == 302
+            assert 'login' in response.location
 
     def test_redirects_when_no_customer(self, app, sample_user):
         """Test that user without Stripe customer is redirected."""
