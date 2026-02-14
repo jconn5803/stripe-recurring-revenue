@@ -204,14 +204,11 @@ A free trial period is set up by adding to the stripe.checkout.session.create th
 A user has every right to cancel during a trial period. The user can cancel the free trial, and hence the subscription, via the billing portal. When the billing cycle ends, i.e the free trial elapses, the customer.subscription.deleted event is invoked which causes the same process as 4.7.a. 
 
 ## 6. Discount Codes
+A discount code implementation exists only in the `discount_codes` branch.
 You may want to offer discount codes to customers for 10% or £30 off. You can do this by
 
 1. Create a coupon via the Stripe dashboard product catalogue. Coupons are configurable for type, amounts, specific products, durations and usage quotas. Interestingly, it appears that if you have multiple prices associated with the same product then you can only apply it to the product as a whole. You are most likely going to want to toggle customer-facing coupon codes active. They are also configurable for a specific customer.
 2. In the stripe.checkout.session.create add `allow_promotion_codes=True` as an argument.
-
-
-
-
 
 
 ## 7. Testing
