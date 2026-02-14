@@ -45,6 +45,7 @@ A Price defines how much and how often a customer is charged. In this app:
 - There is a monthly price (`TEST_MONTHLY_PRICE_ID`).
 - There is a yearly price (`TEST_YEARLY_PRICE_ID`).
 - The Checkout session chooses which price based on a form field.
+- Both the prices are associated to the 'subscription' product.
 
 ### 2.4 Features / Entitlement
 
@@ -364,9 +365,5 @@ Environment variables also need patching in tests:
 with patch.dict(os.environ, {'TEST_MONTHLY_PRICE_ID': 'price_test'}):
     response = client.post(...)
 ```
-
-### 7.9 Known Issues
-
-The `@requires_feature` decorator has a bug where it accesses `user.id` before checking if the user is authenticated. This causes an `AttributeError` for anonymous users instead of a clean redirect. The decorator should be updated to check `current_user.is_authenticated` first.
 
 ## 8. Deployment to Production
